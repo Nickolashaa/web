@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Shop from '../views/Shop.vue'
 import Cart from '../views/Cart.vue'
 import Admin from '../views/Admin.vue'
+import Privacy from '../views/Privacy.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     name: 'Admin',
     component: Admin,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: Privacy
   }
 ]
 

@@ -36,6 +36,13 @@ export const productTypes = {
   getById: (id) => api.get(`/product_types/${id}`)
 }
 
+export const reviews = {
+  getAll: () => api.get('/reviews/'),
+  getLatest: () => api.get('/reviews/latest'),
+  getById: (id) => api.get(`/reviews/${id}`),
+  create: (data) => api.post('/reviews/', data)
+}
+
 export const cart = {
   getItems: () => {
     const items = localStorage.getItem('cart')

@@ -3,6 +3,9 @@
     <header class="header">
       <h1>DIAMANT</h1>
       <div class="header-actions">
+        <button @click="openReviewModal" class="btn-review">
+          Оставить отзыв
+        </button>
         <button @click="$router.push('/admin')" v-if="isAdmin" class="btn-admin">
           Админ-панель
         </button>
@@ -12,6 +15,10 @@
         <button @click="logout" class="btn-logout">Выйти</button>
       </div>
     </header>
+
+    <div class="reviews-section">
+      <ReviewsSlider />
+    </div>
 
     <div class="container">
       <aside class="sidebar">
@@ -33,6 +40,16 @@
           >
             {{ type.name }}
           </button>
+        </div>
+
+        <div class="search-section">
+          <h3>Поиск товаров</h3>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Введите название или описание..."
+            class="search-input"
+          />
         </div>
       </aside>
 
@@ -67,6 +84,12 @@
       </main>
     </div>
 
+    <ReviewModal
+      :isOpen="isReviewModalOpen"
+      @close="closeReviewModal"
+      @submitted="onReviewSubmitted"
+    />
+
     <Footer />
   </div>
 </template>
@@ -76,21 +99,38 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { products, productTypes as productTypesApi, cart } from '../api'
 import Footer from '../components/Footer.vue'
+import ReviewModal from '../components/ReviewModal.vue'
+import ReviewsSlider from '../components/ReviewsSlider.vue'
 
 const router = useRouter()
 
 const allProducts = ref([])
 const productTypes = ref([])
 const selectedType = ref(null)
+const searchQuery = ref('')
 const loading = ref(true)
 const cartCount = ref(0)
 const isAdmin = ref(false)
+const isReviewModalOpen = ref(false)
 
 const filteredProducts = computed(() => {
-  if (selectedType.value === null) {
-    return allProducts.value
+  let products = allProducts.value
+
+  // Фильтр по категории
+  if (selectedType.value !== null) {
+    products = products.filter(p => p.product_type_id === selectedType.value)
   }
-  return allProducts.value.filter(p => p.product_type_id === selectedType.value)
+
+  // Фильтр по поисковому запросу
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    products = products.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      (p.description && p.description.toLowerCase().includes(query))
+    )
+  }
+
+  return products
 })
 
 const loadData = async () => {
@@ -130,6 +170,18 @@ const logout = () => {
   router.push('/login')
 }
 
+const openReviewModal = () => {
+  isReviewModalOpen.value = true
+}
+
+const closeReviewModal = () => {
+  isReviewModalOpen.value = false
+}
+
+const onReviewSubmitted = () => {
+  alert('Спасибо за ваш отзыв!')
+}
+
 onMounted(() => {
   loadData()
 })
@@ -162,6 +214,7 @@ onMounted(() => {
   gap: 1rem;
 }
 
+.btn-review,
 .btn-admin,
 .btn-cart,
 .btn-logout {
@@ -171,6 +224,11 @@ onMounted(() => {
   cursor: pointer;
   font-weight: 600;
   transition: opacity 0.3s;
+}
+
+.btn-review {
+  background: #2ecc71;
+  color: white;
 }
 
 .btn-admin {
@@ -188,10 +246,17 @@ onMounted(() => {
   color: white;
 }
 
+.btn-review:hover,
 .btn-admin:hover,
 .btn-cart:hover,
 .btn-logout:hover {
   opacity: 0.8;
+}
+
+.reviews-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .container {
@@ -238,6 +303,32 @@ onMounted(() => {
   background: #667eea;
   color: white;
   border-color: #667eea;
+}
+
+.search-section {
+  margin-top: 2rem;
+}
+
+.search-section h3 {
+  margin: 0 0 1rem 0;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.search-input::placeholder {
+  color: #999;
 }
 
 .products {

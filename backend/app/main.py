@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base, SessionLocal
-from app.routers import auth, users, product_types, products
+from app.routers import auth, users, product_types, products, reviews
 from app.core.init_data import create_test_data
 
 Base.metadata.create_all(bind=engine)
@@ -29,6 +29,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(product_types.router)
 app.include_router(products.router)
+app.include_router(reviews.router)
 
 
 @app.get("/", summary="Health check")

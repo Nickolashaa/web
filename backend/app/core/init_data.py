@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.models.product_type import ProductType
 from app.models.product import Product
+from app.models.review import Review
 from app.core.security import get_password_hash
 
 
@@ -174,5 +175,48 @@ def create_test_data(db: Session):
 
         db.commit()
         print(f"Создано {len(rings) + len(earrings) + len(brooches)} товаров")
+
+    # Проверяем наличие отзывов
+    review_count = db.query(Review).count()
+    if review_count == 0:
+        print("Создание тестовых отзывов...")
+
+        # Получаем администратора для создания отзывов
+        admin_user = db.query(User).filter(User.login == "admin").first()
+
+        if admin_user:
+            test_reviews = [
+                {
+                    "rating": 5,
+                    "text": "Потрясающее качество украшений! Купила кольцо с изумрудом, оно просто великолепное. Камень яркий, чистый, оправа выполнена безупречно. Очень довольна покупкой!"
+                },
+                {
+                    "rating": 5,
+                    "text": "Заказывала серьги в подарок маме на юбилей. Упаковка шикарная, доставка быстрая. Мама в восторге! Спасибо за прекрасное обслуживание и качественную работу."
+                },
+                {
+                    "rating": 4,
+                    "text": "Очень красивая брошь в стиле арт-деко. Единственный минус - долго ждала доставку, но результат того стоил. Качество отличное, буду заказывать еще."
+                },
+                {
+                    "rating": 5,
+                    "text": "Впервые покупаю украшения онлайн и не пожалела! Кольцо пришло точно как на фото, даже лучше. Консультанты помогли с выбором размера. Рекомендую всем!"
+                },
+                {
+                    "rating": 5,
+                    "text": "Купил обручальные кольца для нас с невестой. Просто идеальные! Качество на высшем уровне, цена адекватная. Спасибо вашей команде за помощь в выборе!"
+                }
+            ]
+
+            for review_data in test_reviews:
+                review = Review(
+                    user_id=admin_user.id,
+                    rating=review_data["rating"],
+                    text=review_data["text"]
+                )
+                db.add(review)
+
+            db.commit()
+            print(f"Создано {len(test_reviews)} тестовых отзывов")
 
     print("Инициализация тестовых данных завершена!")
